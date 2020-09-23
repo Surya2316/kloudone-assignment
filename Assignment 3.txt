@@ -1,0 +1,27 @@
+Problem 2
+Triggers
+
+trigger updateProfile on Account (after update) 
+{ 
+ list<Account> newAccList = new List<Account>();
+ for (Account acc: trigger.new) 
+{
+ system.debug('old website value: ' + trigger.oldMap.get(acc.Id).Website);
+ system.debug('new website vallue: ' + acc.Website);
+ if (acc.Website != NULL && acc.Website != trigger.oldMap.get(acc.Id).Website) 
+{
+ newAccList.add(acc);
+ }
+ }
+ for (Contact contAct: [SELECT Id, FirstName, LastName, Account.Id, Account.Website
+from Contact Where Account.Id IN:newAccList]) 
+{
+ system.debug('print contactAct: ' + contAct);
+ if (contAct.FirstName != NULL) 
+{
+ contAct.profile__c = contAct.Account.Website + '/' + contAct.FirstName.left(1) +contAct.LastName;
+ system.debug('print profile: '+ contAct.Profile__c);
+ update contAct;
+ }
+ }
+}

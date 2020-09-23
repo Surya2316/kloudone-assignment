@@ -1,0 +1,23 @@
+Problem1
+Triggers
+
+trigger goldenAcct on Opportunity (after insert, after update) 
+{
+ List<Id> oList = new List<Id>();
+ for (Opportunity opp: trigger.new) 
+{
+ if (opp.Amount > 20000 && opp.AccountId !=NULL) 
+{
+ oList.add(opp.AccountId);
+ }
+ }
+
+ List<Account> acc = new List<Account>([Select Id from Account where Id IN:
+oList ]);
+
+ for(Account a : acc) 
+{
+ a.Is_Gold__c = TRUE;
+ update a;
+ }
+}

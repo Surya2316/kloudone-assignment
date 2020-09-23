@@ -1,0 +1,43 @@
+Problem 3
+Triggers
+trigger createContact on Account (after insert) 
+{
+ List<Contact> cList = new List<Contact>();
+ for(Account acct: trigger.new) 
+{
+Contact c = new Contact (LastName='Info', FirstName ='Info', Email= 'info@'+acct.Website, AccountId= acct.Id );
+ cList.add(c);
+ }
+ if (!cList.isEmpty()) {
+ insert cList;
+ }
+}
+
+trigger updateAccount on Contact (after insert, after update) {
+ List<Id> acct = new List<Id>();
+ system.debug('acct Id List: ' + acct);
+ for (Contact cnt : trigger.new) 
+{
+ acct.add(c.AccountId);
+ }
+ List<Contact> c = new List<Contact>([Select Id from Contact where AccountId IN:
+acct]);
+ system.debug('contact List: ' + c);
+ Integer totalCnts = c.Size();
+ system.debug('total count : ' + totalCnts);
+ List<Account> accList = new List<Account>([Select Id from Account where Id IN:
+acct]);
+ system.debug('accList: ' + accList);
+ if (totalCnts == 1) {
+ for (Account ac : accList) {
+ act.Only_Default_Contact__c = TRUE;
+ update act;
+ }
+ } 
+else if (totalCnts > 1)
+ {
+ for (Account ac : accList) 
+{
+ ac.Only_Default_Contact__c = False;
+ update act;
+ }

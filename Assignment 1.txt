@@ -1,0 +1,32 @@
+trigger assignment4(after insert,after update) 
+{
+	List<AggregateResult> tasks = [select count(Id) c,AccountId a from Task where AccountID in (select Id from Account) group by AccountId];
+    List<Account> accList = new List<Account>();
+    for(AggregateResult ar: tasks){
+        for(Task t: Trigger.New){
+            if(t.Status == 'Completed'){
+                Account acc = new Account(Id=(Id)ar.get('a'),Number_of_Tasks__c=(Decimal)ar.get('c'));
+        		accList.add(acc);
+            }
+            else{
+                Account acc = new Account(Id=(Id)ar.get('a'),Number_of_Tasks__c=0);
+        		accList.add(acc);
+            }
+        }
+        
+    }
+    update accList;
+}
+
+Test class
+@isTest
+public class Test {
+    @isTest static void updateNumberOfTasks(){
+        Account a = new Account(Name='Junk');
+        insert acc;
+        Task task1 = new Task(Subject='Call',Status='Completed',Priority='Normal',WhatId=a.Id);
+        insert task1;
+        Task task2 = new Task(Subject='Call',Status='In Progress',Priority = 'Normal',WhatId=a.Id);
+        insert task2;
+    }
+}
